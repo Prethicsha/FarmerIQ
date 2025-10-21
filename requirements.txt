@@ -1,0 +1,6 @@
+streamlit
+pandas
+catboost
+requests
+streamlit-option-menu
+streamlit-lottie
