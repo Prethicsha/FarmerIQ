@@ -330,5 +330,6 @@ if st.button("Predict Quality Grade"):
 
     st.subheader("Estimated Profit:")
     st.success(f"💰 Estimated profit: {estimated_profit:.2f} per {unit}")
-
-
+    
+    st.subheader("Profit Comparison:")
+    st.bar_chart(pd.DataFrame({'Max Possible': [total_value], 'Estimated': [estimated_profit]}))
