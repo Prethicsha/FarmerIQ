@@ -7,101 +7,44 @@ import json, os, hashlib
 st.set_page_config(page_title="FarmerIQ", page_icon="🌾", layout="wide")
 
 # -------------------- THEME & DYNAMIC BACKGROUNDS --------------------
-
-# Function to apply animated background based on product
 def apply_background(product=None):
+    """Apply animated background dynamically based on selected product."""
+    gifs = {
+        "milk": "https://cdn.dribbble.com/users/220167/screenshots/2097727/media/38e7e888cb9f733bff7ce646d1f77c09.gif",
+        "eggs": "https://cdn.dribbble.com/users/1226935/screenshots/6340898/eggs.gif",
+        "honey": "https://cdn.dribbble.com/users/591017/screenshots/3822362/honey_drip.gif",
+        "fruits": "https://cdn.dribbble.com/users/1395642/screenshots/5587985/fruits_animation.gif",
+        "vegetables": "https://cdn.dribbble.com/users/5976/screenshots/2958764/veggies.gif",
+    }
+
     if not product:
-        # Default gradient background for login/signup page
+        # Default gradient for login page
         st.markdown("""
             <style>
-            body {
+            div[data-testid="stAppViewContainer"] > .main {
                 background: linear-gradient(135deg, #e8f5e9, #f1f8e9, #f9fbe7);
                 background-attachment: fixed;
                 font-family: 'Poppins', sans-serif;
             }
             </style>
         """, unsafe_allow_html=True)
-        return
-
-    if product == "milk":
-        bg = """
-        <style>
-        body {
-            background: url('https://cdn.dribbble.com/users/220167/screenshots/2097727/media/38e7e888cb9f733bff7ce646d1f77c09.gif');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            color: #1B4332;
-        }
-        </style>
-        """
-
-    elif product == "eggs":
-        bg = """
-        <style>
-        body {
-            background: url('https://cdn.dribbble.com/users/1226935/screenshots/6340898/eggs.gif');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            color: #3b3b3b;
-        }
-        </style>
-        """
-
-    elif product == "honey":
-        bg = """
-        <style>
-        body {
-            background: url('https://cdn.dribbble.com/users/591017/screenshots/3822362/honey_drip.gif');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            color: #3b1f00;
-        }
-        </style>
-        """
-
-    elif product == "fruits":
-        bg = """
-        <style>
-        body {
-            background: url('https://cdn.dribbble.com/users/1395642/screenshots/5587985/fruits_animation.gif');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            color: #2c3e50;
-        }
-        </style>
-        """
-
-    elif product == "vegetables":
-        bg = """
-        <style>
-        body {
-            background: url('https://cdn.dribbble.com/users/5976/screenshots/2958764/veggies.gif');
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-            color: #1b5e20;
-        }
-        </style>
-        """
-
     else:
-        bg = """
-        <style>
-        body {
-            background: linear-gradient(135deg, #e8f5e9, #f1f8e9, #f9fbe7);
-        }
-        </style>
-        """
+        gif_url = gifs.get(product, "")
+        st.markdown(f"""
+            <style>
+            div[data-testid="stAppViewContainer"] > .main {{
+                background: url('{gif_url}');
+                background-size: cover;
+                background-repeat: no-repeat;
+                background-attachment: fixed;
+                color: #1B4332;
+                transition: background 1s ease-in-out;
+            }}
+            </style>
+        """, unsafe_allow_html=True)
 
-    st.markdown(bg, unsafe_allow_html=True)
-
-# Apply background dynamically depending on state
+# Apply background dynamically
 apply_background(st.session_state.get("selected_product", None))
-
 
 # -------------------- SECURITY FUNCTIONS --------------------
 def hash_password(password):
@@ -142,7 +85,6 @@ if "selected_product" not in st.session_state:
 
 # -------------------- LOGIN / SIGNUP --------------------
 if not st.session_state["authenticated"]:
-    # Title + Subtitle (Centered)
     st.markdown(
         """
         <div style='text-align:center; margin-top:20px;'>
@@ -153,40 +95,28 @@ if not st.session_state["authenticated"]:
         unsafe_allow_html=True
     )
 
-    # Center both buttons in one line
-    st.markdown(
-        """
-        <div style='display:flex; justify-content:center; gap:30px; margin-top:10px; margin-bottom:25px;'>
-            <form action="#" method="get">
-                <button type="submit" name="action" value="login"
-                    style="background-color:#2e7d32; color:white; border:none; padding:10px 25px;
-                    border-radius:10px; font-weight:600; cursor:pointer;">🔑 Login</button>
-                <button type="submit" name="action" value="signup"
-                    style="background-color:#2e7d32; color:white; border:none; padding:10px 25px;
-                    border-radius:10px; font-weight:600; cursor:pointer;">🆕 Sign Up</button>
-            </form>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-    # Capture button actions
-    action = st.query_params.get("action", [None])[0] if hasattr(st, "query_params") else None
-    if action == "login":
-        st.session_state["mode"] = "login"
-    elif action == "signup":
-        st.session_state["mode"] = "signup"
+    # Center buttons
+    c1, c2,c3= st.columns([2, 1,2])
+    with c2:
+        b1, b2 = st.columns(2)
+        with b1:
+            if st.button("🔑 Login"):
+                st.session_state["mode"] = "login"
+        with b2:
+            if st.button("🆕 Sign Up"):
+                st.session_state["mode"] = "signup"
 
     st.write("---")
 
-    # Login form
     if st.session_state["mode"] == "login":
         st.subheader("Login to Continue")
         username = st.text_input("👤 Username")
         password = st.text_input("🔒 Password", type="password")
 
         if st.button("Login Now"):
-            if check_login(username, password):
+            if not username or not password:
+                st.warning("⚠️ Please fill in all fields.")
+            elif check_login(username, password):
                 st.session_state["authenticated"] = True
                 st.session_state["username"] = username
                 st.success(f"✅ Welcome back, {username}!")
@@ -194,7 +124,6 @@ if not st.session_state["authenticated"]:
             else:
                 st.error("❌ Invalid username or password.")
 
-    # Signup form
     elif st.session_state["mode"] == "signup":
         st.subheader("Create a New Account")
         username = st.text_input("👤 Choose a Username")
@@ -212,6 +141,7 @@ if not st.session_state["authenticated"]:
                 register_user(username, password)
                 st.success("✅ Account created! You can now log in.")
                 st.session_state["mode"] = "login"
+                st.rerun()
 
     st.stop()
 
@@ -221,82 +151,37 @@ if st.sidebar.button("🚪 Logout"):
     st.session_state["selected_product"] = None
     st.rerun()
 
-# -------------------- STYLE --------------------
-st.markdown("""
-<style>
-body {
-    background: linear-gradient(135deg, #f7fff7, #e8f5e9);
-    body {
-    transition: background 1s ease-in-out;
-}
-
-}
-h1, h2, h3, label, p {
-    font-family: 'Poppins', sans-serif;
-}
-.icon-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px;
-    margin-top: 40px;
-}
-.icon-card {
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 8px 18px rgba(0,0,0,0.1);
-    width: 160px;
-    height: 160px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-    text-align: center;
-}
-.icon-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 14px 28px rgba(0,0,0,0.15);
-}
-.icon-card span {
-    font-size: 55px;
-    margin-bottom: 10px;
-}
-.icon-card h4 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-    color: #245b2b;
-}
-</style>
-""", unsafe_allow_html=True)
-
 # -------------------- MODEL LOAD --------------------
 model = CatBoostClassifier()
 model.load_model("quality_grade_model.cbm")
 expected_features = model.feature_names_
 
-# -------------------- HOMEPAGE (Icons) --------------------
+# -------------------- HOMEPAGE --------------------
 if st.session_state["selected_product"] is None:
     st.title(f"🌾 Welcome, {st.session_state['username']}!")
     st.subheader("Select a Product to Analyze Quality and Profit")
+
     col1, col2, col3, col4, col5 = st.columns(5)
     if col1.button("🥛"):
         st.session_state["selected_product"] = "milk"; st.rerun()
     col1.write("**Milk**")
+
     if col2.button("🥚"):
         st.session_state["selected_product"] = "eggs"; st.rerun()
     col2.write("**Eggs**")
+
     if col3.button("🍯"):
         st.session_state["selected_product"] = "honey"; st.rerun()
     col3.write("**Honey**")
+
     if col4.button("🍎"):
         st.session_state["selected_product"] = "fruits"; st.rerun()
     col4.write("**Fruits**")
+
     if col5.button("🥕"):
         st.session_state["selected_product"] = "vegetables"; st.rerun()
     col5.write("**Vegetables**")
+
     st.stop()
 
 # -------------------- PRODUCT LOGIC --------------------
@@ -307,7 +192,7 @@ if st.button("⬅ Back to Home"):
 
 st.title(f"🔍 {product.capitalize()} Quality Prediction")
 
-# ---------- Shared Definitions ----------
+# Shared options
 units_dict = {
     'milk': ['liters','ml'],
     'eggs': ['pieces','dozens'],
@@ -324,16 +209,14 @@ fruits_list = ['mango','apple','banana','grapes','papaya','pineapple','guava','o
 vegetables_list = ['spinach','tomato','potato','onion','carrot','cabbage','cauliflower','cucumber','pepper',
                    'lettuce','radish','beetroot','chilli','broccoli','zucchini','eggplant','beans','pumpkin']
 storage_options = ['room','refrigerated']
-all_columns = ['product','animal','time_of_day','storage','days_since',
-               'density','fat','snf','size','condition','type','purity','moisture',
-               'name','ripeness','color','quantity','freshness']
+all_columns = ['product','animal','time_of_day','storage','days_since','density','fat','snf','size','condition',
+               'type','purity','moisture','name','ripeness','color','quantity','freshness']
 cat_features = ['product','animal','time_of_day','storage','size','condition','type','name','ripeness','color']
-
 input_data = {col:0 for col in all_columns}
 for cat in cat_features:
     input_data[cat] = 'unknown'
 
-# ---------- Inputs ----------
+# Inputs
 if product == 'milk':
     animal = st.selectbox("Animal", milk_animals)
     time_of_day = st.selectbox("Time of Day", ['morning','evening'])
@@ -348,7 +231,6 @@ if product == 'milk':
     input_data.update({'product':'milk','animal':animal,'time_of_day':time_of_day,'storage':storage,
                        'days_since':days_since,'density':density,'fat':fat,'snf':snf,
                        'quantity':quantity,'freshness':freshness})
-
 elif product == 'eggs':
     size=st.selectbox("Size",egg_sizes)
     condition=st.selectbox("Condition",egg_conditions)
@@ -359,7 +241,6 @@ elif product == 'eggs':
     freshness=max(0,100-days_since*7)
     input_data.update({'product':'eggs','size':size,'condition':condition,'storage':storage,
                        'days_since':days_since,'quantity':quantity,'freshness':freshness})
-
 elif product == 'honey':
     htype=st.selectbox("Honey Type",honey_types)
     storage=st.selectbox("Storage",storage_options)
@@ -372,7 +253,6 @@ elif product == 'honey':
     input_data.update({'product':'honey','type':htype,'storage':storage,
                        'days_since':days_since,'purity':purity,'moisture':moisture,
                        'quantity':quantity,'freshness':freshness})
-
 else:
     name = st.selectbox("Name", fruits_list if product=='fruits' else vegetables_list)
     size = st.selectbox("Size",['small','medium','large'])
@@ -386,7 +266,7 @@ else:
     input_data.update({'product':product,'name':name,'size':size,'ripeness':ripeness,'color':color,
                        'storage':storage,'days_since':days_since,'quantity':quantity,'freshness':freshness})
 
-# ---------- Profit & Prediction ----------
+# Profit & Prediction
 unit_price = st.number_input(f"Enter Price per {unit}", min_value=0.0, step=0.1)
 total_value = unit_price * quantity
 actions, profit_loss_percent = [], 0
@@ -411,8 +291,6 @@ elif product == 'eggs':
     else:
         actions.append("Eggs are old. Consider cooking or discarding.")
         profit_loss_percent = (100 - freshness) * 0.8
-    if storage == 'refrigerated':
-        actions.append("Refrigeration recommended.")
 elif product == 'honey':
     actions.append("Honey is stable for long-term storage.")
     if freshness < 50:
@@ -427,12 +305,9 @@ else:
     else:
         actions.append(f"{name.capitalize()} quality is low. Consider processing or discounts.")
         profit_loss_percent = (100 - freshness) * 0.9
-    if storage == 'refrigerated':
-        actions.append("Refrigerated storage helps preserve quality.")
 
 estimated_profit = total_value * (1 - profit_loss_percent/100)
 
-# ---------- Prediction ----------
 if st.button("Predict Quality Grade"):
     input_df = pd.DataFrame([input_data])
     input_df = input_df.reindex(columns=expected_features, fill_value=0)
@@ -449,18 +324,11 @@ if st.button("Predict Quality Grade"):
     st.subheader("Predicted Quality Grade:")
     st.success(pred)
 
-    st.subheader("Input Features and Freshness Score:")
-    display = input_df.replace(0, pd.NA).replace('unknown', pd.NA).dropna(axis=1)
-    st.table(display.T.rename(columns={0:'Value'}))
-
     st.subheader("Suggested Actions:")
     for act in actions:
         st.info(act)
 
-    st.subheader("Estimated Profit Reduction:")
-    st.warning(f"~{profit_loss_percent:.1f}% profit loss if sold now.")
-
     st.subheader("Estimated Profit:")
-    st.success(f"Estimated profit: {estimated_profit:.2f} per {unit}")
+    st.success(f"💰 Estimated profit: {estimated_profit:.2f} per {unit}")
 
-    st.bar_chart(pd.DataFrame({'Max Possible':[total_value],'Estimated':[estimated_profit]}))
+
